@@ -200,6 +200,16 @@
     note.focus();
   });
 
-  applyMode(currentMode(), false);
+  var requested = "";
+  try {
+    requested = new URLSearchParams(window.location.search).get("voice") || "";
+  } catch (err) {
+    requested = "";
+  }
+  if (requested === "human" || requested === "caveman") {
+    applyMode(requested, false);
+  } else {
+    applyMode(currentMode(), false);
+  }
   syncExample();
 })();
