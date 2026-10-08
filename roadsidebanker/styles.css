@@ -319,6 +319,17 @@ input::placeholder {
   cursor: not-allowed;
 }
 
+.copy-note {
+  flex: 1 0 100%;
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--green-deep);
+}
+
+.copy-note:empty {
+  display: none;
+}
+
 #slip.pop {
   animation: pop-in 0.28s ease;
 }

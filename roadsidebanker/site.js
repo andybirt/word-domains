@@ -124,17 +124,20 @@
     deskOut.textContent = desks[desk];
     exampleText.textContent = lines[rand(lines.length)];
     exampleRow.hidden = false;
-    copyBtn.disabled = false;
     paintShare();
     pop();
   });
 
+  var copyNote = document.getElementById("copy-note");
+
   function markCopy(ok) {
+    var message = ok ? "Copied." : "Not copied.";
     copyBtn.textContent = ok ? "Copied" : "Not copied";
-    if (copyStatus) copyStatus.textContent = ok ? "Copied." : "Copy failed.";
+    if (copyNote) copyNote.textContent = message;
+    if (copyStatus) copyStatus.textContent = message;
     window.setTimeout(function () {
       copyBtn.textContent = "Copy";
-    }, 1400);
+    }, 1600);
   }
 
   function fallbackCopy(text) {
@@ -160,7 +163,10 @@
 
   copyBtn.addEventListener("click", function () {
     var text = slipPlain();
-    if (!text) return;
+    if (!text) {
+      if (copyNote) copyNote.textContent = "Print a title first.";
+      return;
+    }
     var settled = false;
     function finish(ok) {
       if (settled) return;
