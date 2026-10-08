@@ -26,59 +26,6 @@
       "Hi, I just wanted to circle back on the Q3 update. The large launch is going really well, but we have a terrible problem with the timeline, and I think we should meet to align."
   };
 
-  var phrases = [
-    /i hope this (?:e-?mail|note|message) finds you well[.!]*/gi,
-    /thanks so much(?: in advance)?[.!]*/gi,
-    /thank you so much(?: in advance)?[.!]*/gi,
-    /please don[’']t hesitate to reach out(?: if anything is unclear)?[.!]*/gi,
-    /no rush at all[,.!]*/gi,
-    /it would be (?:really |very )?helpful if we could/gi,
-    /so (?:that )?we can make sure we(?:'re| are|’re) all/gi,
-    /i was (?:just )?wondering if/gi,
-    /(?:kindly )?ask whether you might have a moment to/gi,
-    /whether you might have a moment to/gi,
-    /if you might have a moment to/gi,
-    /when you get a chance/gi,
-    /i just wanted to/gi,
-    /just wanted to/gi,
-    /take a look at/gi,
-    /circle back on/gi,
-    /make sure to/gi,
-    /i think (?:that )?it would be great if you could/gi,
-    /i think we should/gi,
-    /i think\b/gi,
-    /i believe\b/gi,
-    /it seems\b/gi,
-    /sort of/gi,
-    /kind of/gi,
-    /\bkindly\b/gi
-  ];
-
-  var soften = [
-    [/\b(?:great|excellent|awesome|amazing|wonderful)\b/gi, "good"],
-    [/\b(?:large|huge|massive|enormous)\b/gi, "big"]
-  ];
-
-  var grugSwaps = [
-    [/\b(?:terrible|awful|horrible|huge|big)\s+(?:problem|issue)s?\b/gi, "bad"]
-  ].concat(soften).concat([
-    [/\b(?:i'm|i am|we're|we are)\b/gi, "me"],
-    [/\b(?:i|we|my|mine|our)\b/gi, "me"],
-    [/\b(?:you're|you are|your)\b/gi, "you"],
-    [/\b(?:problem|issue)s?\b/gi, "bad"],
-    [/\b(?:terrible|awful|horrible)\b/gi, "bad"],
-    [/\b(?:important|critical)\b/gi, "big"],
-    [/\bwell\b/gi, "good"]
-  ]);
-
-  var prefireSwaps = [
-    [/\burgent\s+(?:meeting|sync)s?\b/gi, "fire"],
-    [/\b(?:e-?mails?|documents?|computers?|laptops?|files?|decks?)\b/gi, "rock"],
-    [/\b(?:meetings?|syncs?|meet|deadline)s?\b/gi, "fire"],
-    [/\b(?:urgent|asap)\b/gi, "fire"],
-    [/\b(?:thanks?|sorry|okay|ok|alright|unfortunately)\b/gi, "ugh"]
-  ].concat(grugSwaps);
-
   function motionOk() {
     return !motionQuery.matches;
   }
@@ -118,69 +65,6 @@
   function countWords(text) {
     var found = String(text).match(/[A-Za-z0-9'’$-]+/g);
     return found ? found.length : 0;
-  }
-
-  function applySwaps(text, pairs) {
-    pairs.forEach(function (pair) {
-      text = text.replace(pair[0], pair[1]);
-    });
-    return text;
-  }
-
-  function tidy(text, fragments) {
-    text = text
-      .replace(/[ \t]{2,}/g, " ")
-      .replace(/\s+([,.;!?])/g, "$1")
-      .replace(/[.,;]{2,}/g, ".")
-      .replace(/(^|\n)[\s,.;]+/g, "$1")
-      .trim();
-    if (fragments === "grunt" || fragments === "line") {
-      text = text.replace(/[,;:.!?]+\s*/g, "\n");
-    }
-    text = text
-      .split("\n")
-      .map(function (line) {
-        return line.replace(/^(?:and|or|but)\s+/i, "").replace(/^[\s,.;!?]+|[\s,;:]+$/g, "").trim();
-      })
-      .filter(function (line, index, lines) {
-        var word = line.toLowerCase();
-        if (!/[A-Za-z0-9]/.test(line)) return false;
-        if (/^(?:and|or|but)$/.test(word)) return false;
-        var prev = index > 0 ? String(lines[index - 1]).toLowerCase() : "";
-        return !(word === "ugh" && prev === "ugh");
-      })
-      .map(function (line) {
-        return line.charAt(0).toUpperCase() + line.slice(1);
-      })
-      .join("\n")
-      .replace(/\n{2,}/g, "\n")
-      .trim();
-    text = text.replace(/(^|[.!?]\s+|\n)([a-z])/g, function (_, lead, letter) {
-      return lead + letter.toUpperCase();
-    });
-    return text;
-  }
-
-  function cavemanize(input, level) {
-    var text = String(input).replace(/\r\n/g, "\n");
-    text = text.replace(/\b(?:could|would|can) you please\b/gi, "You ");
-    phrases.forEach(function (pattern) {
-      text = text.replace(pattern, " ");
-    });
-    text = text.replace(/\b(?:just|really|basically|actually|very|so|please|hi|hello|kindly|maybe|perhaps)\b/gi, " ");
-    if (level !== "prefire") text = text.replace(/\b(?:sorry|thanks?|thank you)\b/gi, " ");
-    text = text.replace(/\bis\s+(?:terrible|awful|horrible)\b/gi, " ");
-    text = text.replace(/(?:^|[\s.,;])(?:and|or|but)(?=\s*[.,;!?]|$)/gi, " ");
-    if (level === "office") return tidy(applySwaps(text, soften), false);
-    text = text.replace(/\b(?:a|an|the)\b/gi, " ");
-    text = applySwaps(text, level === "prefire" ? prefireSwaps : grugSwaps);
-    if (level === "prefire") {
-      text = text.replace(
-        /\b(?:of|to|for|and|that|with|this|it|is|are|was|were|be|would|could|should|might|also|all|but|have|going)\b/gi,
-        " "
-      );
-    }
-    return tidy(text, level === "prefire" ? "grunt" : "line");
   }
 
   var bonkToken = 0;
