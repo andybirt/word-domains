@@ -362,10 +362,22 @@ textarea {
 }
 
 .tally {
-  font-family: var(--hand);
-  font-size: 1.05rem;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
   white-space: nowrap;
+}
+
+.saved {
+  font-family: var(--display);
+  font-size: 1.2rem;
   color: var(--clay-deep);
+}
+
+.flow {
+  font-family: var(--hand);
+  font-size: 1rem;
+  color: var(--muted);
 }
 
 #toy-out {
@@ -513,12 +525,26 @@ main.shake { animation: page-shake 0.4s ease; }
   }
 
   .art {
-    min-height: 190px;
-    flex-basis: 200px;
+    min-height: 172px;
+    flex-basis: 180px;
+  }
+
+  .sheet {
+    padding-bottom: 8px;
+  }
+
+  form {
+    gap: 6px;
+  }
+
+  .foot {
+    min-height: 36px;
+    padding-bottom: 4px;
   }
 
   main {
     width: min(1080px, calc(100% - 16px));
+    margin-bottom: 4px;
   }
 }
 

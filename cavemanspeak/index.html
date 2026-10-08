@@ -163,17 +163,14 @@
             <span class="say-caveman">Cut note</span>
           </button>
           <button type="button" class="btn ghost" id="copy-btn" disabled>Copy</button>
-          <a class="btn ghost" id="share-btn" href="https://x.com/intent/tweet?text=Small%20talk%20got%20smaller.%0A%0Ahttps%3A%2F%2Fcavemanspeak.com%2F" target="_blank" rel="noopener noreferrer">Share<span class="sr-only"> on X (opens in a new tab)</span></a>
+          <a class="btn ghost" id="share-btn" href="https://x.com/intent/tweet?text=Small%20talk%20got%20smaller.%0A%0Ahttps%3A%2F%2Fcavemanspeak.com%2F" target="_blank" rel="noopener noreferrer">Share on X<span class="sr-only"> (opens in a new tab)</span></a>
         </div>
 
         <div class="result" id="result">
           <p class="tally" id="tally">
-            <span id="count-in">—</span> in
-            <span aria-hidden="true">·</span>
-            <span id="count-out">—</span> out
-            <span aria-hidden="true">·</span>
-            <span id="count-cut">—</span> cut
-            <span class="sr-only">words. This counts words, not model tokens.</span>
+            <span class="saved"><span id="count-cut">—</span> <span class="say-human">words saved</span><span class="say-caveman">word saved</span></span>
+            <span class="flow"><span id="count-in">—</span> in · <span id="count-out">—</span> out</span>
+            <span class="sr-only">Word count. Words saved is words in minus words out.</span>
           </p>
           <p id="toy-out" aria-live="polite"></p>
         </div>
