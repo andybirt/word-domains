@@ -161,15 +161,25 @@
   copyBtn.addEventListener("click", function () {
     var text = slipPlain();
     if (!text) return;
+    var settled = false;
+    function finish(ok) {
+      if (settled) return;
+      settled = true;
+      markCopy(ok);
+    }
+    copyBtn.textContent = "Copying";
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () {
-        markCopy(true);
+        finish(true);
       }, function () {
-        markCopy(fallbackCopy(text));
+        finish(fallbackCopy(text));
       });
+      window.setTimeout(function () {
+        if (!settled) finish(fallbackCopy(text));
+      }, 500);
       return;
     }
-    markCopy(fallbackCopy(text));
+    finish(fallbackCopy(text));
   });
 
   soonForm.addEventListener("submit", function (event) {
