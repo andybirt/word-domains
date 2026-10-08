@@ -89,9 +89,6 @@ a:hover {
 }
 
 .flag {
-  position: sticky;
-  top: 0;
-  z-index: 3;
   height: 6px;
   background: linear-gradient(90deg, #0e7d48 0 33.34%, #fffefb 33.34% 66.67%, #0e7d48 66.67%);
 }
@@ -108,9 +105,6 @@ main {
   display: flex;
   align-items: center;
   min-height: 44px;
-  position: sticky;
-  top: 6px;
-  z-index: 2;
   background: var(--header);
 }
 

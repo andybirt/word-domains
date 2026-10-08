@@ -198,14 +198,14 @@
       soonStatus.textContent = "Could not hold it on this phone. The note link still works.";
       return;
     }
-    soonStatus.textContent = "Held on this phone for " + email + ". Nothing was sent.";
+    soonStatus.textContent = "Held on this phone for " + email + ". We'll only use this to tell you when it launches.";
   });
 
   soonEmail.addEventListener("input", paintMail);
 
   try {
     if (localStorage.getItem("roadsidebanker-spot")) {
-      soonStatus.textContent = "A spot is already held on this phone. Nothing was sent.";
+      soonStatus.textContent = "A spot is already held on this phone. We'll only use this to tell you when it launches.";
     }
   } catch (err) {}
 
