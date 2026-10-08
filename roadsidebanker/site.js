@@ -129,23 +129,47 @@
     pop();
   });
 
+  function markCopy(ok) {
+    copyBtn.textContent = ok ? "Copied" : "Not copied";
+    if (copyStatus) copyStatus.textContent = ok ? "Copied." : "Copy failed.";
+    window.setTimeout(function () {
+      copyBtn.textContent = "Copy";
+    }, 1400);
+  }
+
+  function fallbackCopy(text) {
+    var area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.top = "0";
+    area.style.left = "0";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    var ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch (err) {
+      ok = false;
+    }
+    document.body.removeChild(area);
+    return ok;
+  }
+
   copyBtn.addEventListener("click", function () {
     var text = slipPlain();
     if (!text) return;
-    function done() {
-      copyBtn.textContent = "Copied";
-      if (copyStatus) copyStatus.textContent = "Copied.";
-      window.setTimeout(function () {
-        copyBtn.textContent = "Copy";
-      }, 1400);
-    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done, function () {
-        if (copyStatus) copyStatus.textContent = "Copy failed.";
+      navigator.clipboard.writeText(text).then(function () {
+        markCopy(true);
+      }, function () {
+        markCopy(fallbackCopy(text));
       });
       return;
     }
-    if (copyStatus) copyStatus.textContent = "Copy failed.";
+    markCopy(fallbackCopy(text));
   });
 
   soonForm.addEventListener("submit", function (event) {
