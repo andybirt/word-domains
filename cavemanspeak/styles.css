@@ -50,6 +50,7 @@ html {
 
 body {
   margin: 0;
+  overflow-anchor: none;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -957,7 +958,7 @@ textarea,
 }
 
 .is-bonked .bonk-club {
-  animation: bonk 0.55s ease;
+  animation: bonk 0.85s ease;
 }
 
 #toy-out.pop {
@@ -973,7 +974,7 @@ textarea,
 .nod {
   transform-box: fill-box;
   transform-origin: 50% 82%;
-  animation: nod 4.4s ease-in-out infinite;
+  animation: nod 2.4s ease-in-out infinite;
 }
 
 .lid {
@@ -998,7 +999,7 @@ textarea,
 }
 
 .flame-a {
-  animation: flicker 0.36s ease-in-out infinite alternate;
+  animation: flicker 0.32s ease-in-out infinite alternate;
 }
 
 .flame-b {
@@ -1013,7 +1014,7 @@ textarea,
   opacity: 0;
   transform-box: fill-box;
   transform-origin: center;
-  animation: rise 3.1s linear infinite;
+  animation: rise 2.4s linear infinite;
 }
 
 .puff-b {
@@ -1098,15 +1099,15 @@ textarea,
 
 @keyframes nod {
   0%,
-  64%,
+  46%,
   100% {
     transform: rotate(0deg);
   }
-  76% {
-    transform: rotate(8deg);
+  62% {
+    transform: rotate(11deg);
   }
-  88% {
-    transform: rotate(-3deg);
+  78% {
+    transform: rotate(-4deg);
   }
 }
 
@@ -1124,24 +1125,24 @@ textarea,
 
 @keyframes flicker {
   from {
-    transform: scale(1, 1);
+    transform: scale(0.7, 0.78) translateY(5px);
   }
   to {
-    transform: scale(0.84, 1.22) translateY(-3px);
+    transform: scale(1.18, 1.48) translateY(-10px);
   }
 }
 
 @keyframes rise {
   0% {
     opacity: 0;
-    transform: translateY(6px) scale(0.5);
+    transform: translateY(8px) scale(0.45);
   }
-  20% {
-    opacity: 0.75;
+  18% {
+    opacity: 0.95;
   }
   100% {
     opacity: 0;
-    transform: translateY(-56px) scale(1.55);
+    transform: translateY(-78px) scale(1.9);
   }
 }
 
@@ -1178,19 +1179,23 @@ textarea,
 @keyframes bonk {
   0% {
     opacity: 1;
-    transform: rotate(-72deg);
+    transform: rotate(-78deg);
   }
-  42% {
+  38% {
     opacity: 1;
-    transform: rotate(18deg);
+    transform: rotate(20deg);
   }
-  70% {
+  58% {
     opacity: 1;
-    transform: rotate(-10deg);
+    transform: rotate(-8deg);
+  }
+  82% {
+    opacity: 1;
+    transform: rotate(4deg);
   }
   100% {
     opacity: 0;
-    transform: rotate(6deg);
+    transform: rotate(4deg);
   }
 }
 
@@ -1223,7 +1228,7 @@ textarea,
 }
 
 main.shake {
-  animation: page-shake 0.42s ease;
+  animation: page-shake 0.55s ease;
 }
 
 @media (min-width: 900px) {

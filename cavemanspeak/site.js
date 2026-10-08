@@ -78,7 +78,7 @@
       output.textContent = text;
       void output.offsetWidth;
       output.classList.add("pop");
-    }, 240);
+    }, 420);
   }
 
   function countWords(text) {
