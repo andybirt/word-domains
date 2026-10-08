@@ -29,7 +29,7 @@
     humanBtn.setAttribute("aria-pressed", caveman ? "false" : "true");
     caveBtn.setAttribute("aria-pressed", caveman ? "true" : "false");
     var theme = document.querySelector('meta[name="theme-color"]');
-    if (theme) theme.setAttribute("content", caveman ? "#140e0a" : "#efe6d6");
+    if (theme) theme.setAttribute("content", caveman ? "#2a211c" : "#f6e4bc");
     document.title = caveman
       ? "Caveman speak — small talk get small"
       : "Caveman speak — small talk got smaller";
@@ -41,6 +41,44 @@
     if (announce && status) {
       status.textContent = caveman ? "Caveman voice on." : "Human voice on.";
     }
+    if (announce && motionOk()) {
+      var page = document.getElementById("main");
+      page.classList.remove("shake");
+      void page.offsetWidth;
+      page.classList.add("shake");
+    }
+  }
+
+  var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function motionOk() {
+    return !motionQuery.matches;
+  }
+
+  function playBonk() {
+    if (!motionOk()) return;
+    stage.classList.remove("is-bonked");
+    void stage.offsetWidth;
+    stage.classList.add("is-bonked");
+  }
+
+  var bonkToken = 0;
+
+  function showChopped(text) {
+    var token = ++bonkToken;
+    output.classList.remove("pop");
+    if (!motionOk()) {
+      output.textContent = text;
+      return;
+    }
+    output.textContent = "";
+    playBonk();
+    window.setTimeout(function () {
+      if (token !== bonkToken) return;
+      output.textContent = text;
+      void output.offsetWidth;
+      output.classList.add("pop");
+    }, 240);
   }
 
   function countWords(text) {
@@ -132,17 +170,19 @@
       countIn.textContent = "0";
       countOut.textContent = "0";
       countCut.textContent = "0";
-      output.textContent =
+      showChopped(
         currentMode() === "caveman"
           ? "No word in. Paste note first."
-          : "Nothing to cut. Paste a note first.";
+          : "Nothing to cut. Paste a note first."
+      );
       return;
     }
     if (trimmed.length > 4000) {
-      output.textContent =
+      showChopped(
         currentMode() === "caveman"
           ? "Too many word. Paste less."
-          : "That note is over 4,000 characters. Paste a shorter one.";
+          : "That note is over 4,000 characters. Paste a shorter one."
+      );
       return;
     }
     var chopped = cavemanize(trimmed);
@@ -151,11 +191,12 @@
     countIn.textContent = String(inn);
     countOut.textContent = String(out);
     countCut.textContent = String(Math.max(inn - out, 0));
-    output.textContent =
+    showChopped(
       chopped ||
-      (currentMode() === "caveman"
-        ? "Nothing left. Note was all manner."
-        : "Nothing left. That note was made of manners.");
+        (currentMode() === "caveman"
+          ? "Nothing left. Note was all manner."
+          : "Nothing left. That note was made of manners.")
+    );
   }
 
   humanBtn.addEventListener("click", function () {
@@ -212,4 +253,31 @@
     applyMode(currentMode(), false);
   }
   syncExample();
+
+  var revealables = document.querySelectorAll(".reveal");
+  if (!motionOk() || !("IntersectionObserver" in window)) {
+    Array.prototype.forEach.call(revealables, function (el) {
+      el.classList.add("in");
+    });
+  } else {
+    document.documentElement.classList.add("js");
+    var watcher = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("in");
+          watcher.unobserve(entry.target);
+        });
+      },
+      { threshold: 0, rootMargin: "0px 0px 12% 0px" }
+    );
+    Array.prototype.forEach.call(revealables, function (el) {
+      var box = el.getBoundingClientRect();
+      if (box.top < window.innerHeight * 0.96 && box.bottom > 0) {
+        el.classList.add("in");
+      } else {
+        watcher.observe(el);
+      }
+    });
+  }
 })();
