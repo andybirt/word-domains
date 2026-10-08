@@ -39,6 +39,14 @@ var samples = [
   {
     name: "Already short",
     text: "Ship the Q3 deck Friday."
+  },
+  {
+    name: "Holiday reminder",
+    text: "Hi all, just a reminder that the office will be closed on Monday for the public holiday, so please make sure you submit your timesheets by Friday afternoon. Have a great long weekend!"
+  },
+  {
+    name: "Pricing rethink",
+    text: "Honestly I feel like we should probably rethink our pricing strategy because customers keep telling us it is too expensive compared to competitors."
   }
 ];
 
@@ -113,6 +121,28 @@ var support = samples[7].result;
 check("support keeps 4419", /4419/.test(support.grug.out));
 check("support keeps Lina", /Lina/.test(support.grug.out));
 check("support keeps $480 or 480", /480/.test(support.grug.out));
+
+var holiday = samples[9].result;
+check("holiday office drops Hi all", !/^all\b/i.test(holiday.office.out) && !/\bhi all\b/i.test(holiday.office.out));
+check("holiday grug drops make sure", !/make sure/i.test(holiday.grug.out));
+check("holiday grug keeps submit", /\bsubmit\b/i.test(holiday.grug.out));
+check("holiday grug keeps Friday afternoon together", /friday afternoon/i.test(holiday.grug.out));
+check("holiday grug keeps long weekend together", /long weekend/i.test(holiday.grug.out));
+check("holiday prefire keeps Friday afternoon", /friday afternoon/i.test(holiday.pre.out));
+check("holiday prefire lines are 1-3 words", holiday.pre.max <= 3, "max " + holiday.pre.max);
+
+var pricing = samples[10].result;
+check("pricing grug keeps pricing", /\bpricing\b/i.test(pricing.grug.out));
+check("pricing grug does not emit pric", !/\bpric\b/i.test(pricing.grug.out));
+check("pricing grug drops honestly", !/\bhonestly\b/i.test(pricing.grug.out));
+check("pricing grug drops feel like", !/feel like/i.test(pricing.grug.out));
+check("pricing grug drops probably", !/\bprobably\b/i.test(pricing.grug.out));
+check("pricing office drops honestly", !/\bhonestly\b/i.test(pricing.office.out));
+check("pricing office keeps pricing", /\bpricing\b/i.test(pricing.office.out));
+
+check("making stems to make", /\bmake\b/i.test(cavemanize("We are making the deck.", "grug")) && !/\bmak\b/i.test(cavemanize("We are making the deck.", "grug")));
+check("using stems to use", /\buse\b/i.test(cavemanize("We are using the new file.", "grug")) && !/\busin\b/i.test(cavemanize("We are using the new file.", "grug")));
+check("closing is not clos", !/\bclos\b/i.test(cavemanize("The office is closing Monday.", "grug")));
 
 if (failed) {
   console.log(failed + " check(s) failed");

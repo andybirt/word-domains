@@ -157,7 +157,11 @@
     upcoming: 1,
     interesting: 1,
     billing: 1,
-    onboarding: 1
+    onboarding: 1,
+    pricing: 1,
+    closing: 1,
+    processing: 1,
+    missing: 1
   };
 
   var PRONOUN = {
@@ -200,6 +204,7 @@
     maybe: 1, perhaps: 1, quick: 1, quickly: 1, simply: 1, currently: 1,
     already: 1, still: 1, even: 1, quite: 1, rather: 1, pretty: 1, absolutely: 1,
     definitely: 1, honestly: 1, literally: 1, super: 1, really: 1,
+    probably: 1, likely: 1, maybe: 1, perhaps: 1,
     it: 1, this: 1, these: 1, those: 1, there: 1, here: 1, its: 1,
     any: 1, some: 1, every: 1, each: 1, all: 1, own: 1, other: 1, another: 1,
     hey: 1, hi: 1, hello: 1, mate: 1, cheers: 1, regards: 1, bye: 1, goodbye: 1,
@@ -274,7 +279,8 @@
     share: 1, update: 1, schedule: 1, discuss: 1, review: 1, approve: 1,
     launch: 1, ship: 1, fix: 1, finish: 1, complete: 1, create: 1, add: 1,
     change: 1, receive: 1, deliver: 1, submit: 1, sign: 1, join: 1, follow: 1,
-    wait: 1, check: 1, flag: 1, cap: 1, talk: 1, align: 1, come: 1, do: 1
+    wait: 1, check: 1, flag: 1, cap: 1, talk: 1, align: 1, come: 1, do: 1,
+    rethink: 1, compare: 1, close: 1, price: 1, tell: 1
   };
 
   var NOT_NAME = {
@@ -282,7 +288,8 @@
     thanks: 1, thank: 1, dear: 1, just: 1, let: 1, could: 1, would: 1, can: 1,
     if: 1, so: 1, but: 1, and: 1, or: 1, this: 1, that: 1, it: 1, there: 1, here: 1,
     good: 1, great: 1, happy: 1, hope: 1, looking: 1, following: 1, quick: 1,
-    kind: 1, best: 1, cheers: 1, regards: 1, team: 1, folks: 1, guys: 1, mate: 1, everyone: 1,
+    kind: 1, best: 1, cheers: 1, regards: 1, team: 1, folks: 1, guys: 1, mate: 1, everyone: 1, all: 1,
+    honestly: 1, probably: 1,
     monday: 1, tuesday: 1, wednesday: 1, thursday: 1, friday: 1, saturday: 1, sunday: 1,
     january: 1, february: 1, march: 1, april: 1, may: 1, june: 1, july: 1, august: 1,
     september: 1, october: 1, november: 1, december: 1
@@ -320,7 +327,7 @@ function officeSpeak(text) {
   t = t.replace(/\bto\s+talk\s+through\b/gi, "about");
   t = t.replace(/\b(sent|send|sending)\s+through\b/gi, "$1");
   t = applyStock(t);
-  t = t.replace(/\b(?:just|really|very|please|kindly|actually|basically|maybe|perhaps|quick|quickly|simply|currently|absolutely|definitely|still)\b/gi, " ");
+  t = t.replace(/\b(?:just|really|very|please|kindly|actually|basically|maybe|perhaps|probably|honestly|literally|quick|quickly|simply|currently|absolutely|definitely|still)\b/gi, " ");
   t = tidyProse(t);
   return t;
 }
@@ -388,11 +395,25 @@ function emitChunks(words, size) {
     if (buf.length) chunks.push(buf.slice());
     buf = [];
   }
-  var i;
-  for (i = 0; i < words.length; i++) {
+  var i = 0;
+  while (i < words.length) {
+    var span = protectedSpan(words, i);
     var word = words[i];
     var next = words[i + 1];
     var low = String(word).toLowerCase();
+    if (span > 1) {
+      if (buf.length && buf.length + span > size) flush();
+      if (!buf.length && span > size) {
+        chunks.push(words.slice(i, i + span));
+        i += span;
+        continue;
+      }
+      var k;
+      for (k = 0; k < span; k++) buf.push(words[i + k]);
+      i += span;
+      if (buf.length >= size) flush();
+      continue;
+    }
     if (buf.length && (low === "me" || low === "you") && next && VERB[String(next).toLowerCase()]) {
       flush();
     } else if (buf.length && isCapWord(word) && next && isCapWord(next) && buf.length + 2 > size) {
@@ -401,9 +422,26 @@ function emitChunks(words, size) {
       flush();
     }
     buf.push(word);
+    i += 1;
   }
   flush();
   return chunks;
+}
+
+function protectedSpan(words, index) {
+  var a = String(words[index] || "").toLowerCase();
+  var b = String(words[index + 1] || "").toLowerCase();
+  var c = String(words[index + 2] || "").toLowerCase();
+  if ((a === "great" || a === "good") && b === "long" && c === "weekend") return 3;
+  if (b === "weekend" && (a === "long" || a === "great" || a === "good")) return 2;
+  if (a === "public" && b === "holiday") return 2;
+  if (isDay(a) && /^(?:morning|afternoon|evening|night)$/.test(b)) return 2;
+  if ((a === "last" || a === "next" || a === "this") && /^(?:week|month|year|weekend|night|morning|afternoon|evening|monday|tuesday|wednesday|thursday|friday|saturday|sunday)$/.test(b)) return 2;
+  return 1;
+}
+
+function isDay(word) {
+  return /^(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|yesterday|today|tonight)$/.test(word);
 }
 
 function isCapWord(word) {
@@ -493,6 +531,14 @@ function tidyProse(text) {
       /sort\s+of\b/gi,
       /kind\s+of\b/gi,
       /you\s+know\b/gi,
+      /(?:just\s+)?a\s+reminder\s+that\b/gi,
+      /(?:i|we)\s+feel\s+like\b/gi,
+      /\bi\s+guess\b/gi,
+      /\bi\s+mean\b/gi,
+      /\bto\s+be\s+honest\b/gi,
+      /\bif\s+i(?:'m|\s+am)\s+being\s+honest\b/gi,
+      /\bif\s+i(?:'m|\s+am)\s+honest\b/gi,
+      /\bmake\s+sure\s+(?:that\s+)?(?:you|to)\b/gi,
       /make\s+sure\s+(?:to|that)\b/gi,
       /it\s+would\s+be\s+(?:really\s+|very\s+)?(?:great|helpful|good)\s+if\s+(?:you|we)\s+(?:could|can)\b/gi,
       /thanks?\s+so\s+much(?:\s+in\s+advance)?[.!]*/gi,
@@ -597,17 +643,9 @@ function tidyProse(text) {
 function lemmatize(w) {
     if (Object.prototype.hasOwnProperty.call(IRREGULAR, w)) return IRREGULAR[w];
     if (ING_NOUN[w]) return w;
-    if (w.length > 5 && /ing$/.test(w)) {
-      var stem = w.slice(0, -3);
-      if (stem.length >= 2 && stem.charAt(stem.length - 1) === stem.charAt(stem.length - 2)) {
-        stem = stem.slice(0, -1);
-      }
-      if (stem === "mak") return "make";
-      if (stem === "tak") return "take";
-      if (stem === "giv") return "give";
-      if (stem === "writ") return "write";
-      if (stem === "com") return "come";
-      if (stem.length >= 3) return stem;
+    if (w.length > 4 && /ing$/.test(w)) {
+      var stemmed = ingStem(w);
+      if (stemmed) return stemmed;
     }
     if (w.length > 4 && /ied$/.test(w)) return w.slice(0, -3) + "y";
     if (w.length > 3 && /ed$/.test(w)) {
@@ -622,6 +660,26 @@ function lemmatize(w) {
       if (/[^s]s$/.test(w) && w.length > 4) return w.slice(0, -1);
     }
     return w;
+  }
+
+  function ingStem(w) {
+    var stem = w.slice(0, -3);
+    var candidates = [];
+    if (stem.length >= 2 && stem.charAt(stem.length - 1) === stem.charAt(stem.length - 2)) {
+      candidates.push(stem.slice(0, -1));
+    }
+    candidates.push(stem);
+    if (stem === "mak") candidates.push("make");
+    if (stem === "tak") candidates.push("take");
+    if (stem === "giv") candidates.push("give");
+    if (stem === "writ") candidates.push("write");
+    if (stem === "com") candidates.push("come");
+    candidates.push(stem + "e");
+    var i;
+    for (i = 0; i < candidates.length; i++) {
+      if (VERB[candidates[i]]) return candidates[i];
+    }
+    return "";
   }
 
   function isClock(tok) {
